@@ -273,6 +273,8 @@ class FileDownloader {
     this.total = fileQty;
     this.datas.loadingText[0] = `共计有${fileQty}个文件待下载。`;
     if (!fileQty) {
+      this.datas.loadingText[1]= `当前无文件需要下载，请确认`;
+      this.datas.finshDownload = true;
       return "";
     }
     this.datas.loadingText[1] = `正在获取文件信息...`;
