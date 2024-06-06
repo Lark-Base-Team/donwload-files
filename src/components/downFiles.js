@@ -6,7 +6,7 @@ import { i18n } from "@/locales/i18n.js";
 
 const $t = i18n.global.t;
 
-const DEFAULT_FOLDER_NAME = $t("uncategorized");
+
 const MAX_ZIP_SIZE_NUM = 1;
 
 const MAX_ZIP_SIZE = MAX_ZIP_SIZE_NUM * 1024 * 1024 * 1024;
@@ -267,7 +267,7 @@ class FileDownloader {
         for (let i = 0; i < fields.length; i++) {
           const fieldCell = await oTable.getCellString(fields[i], recordId);
           fileInfo[TREE_MAPS[i]] =
-            removeSpecialChars(getFolderName(fieldCell)) || DEFAULT_FOLDER_NAME;
+            removeSpecialChars(getFolderName(fieldCell)) || $t("uncategorized");
         }
       }
       fileList.push(fileInfo);

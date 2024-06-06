@@ -40,8 +40,8 @@
   "select_second_directory": "请选择二级目录",
 
 
-  "uncategorized": "未分类",
-  "undefined": "Undefined",
+  "uncategorized": "无类别",
+  "undefined": "未定义",
   "file_download_failed": "文件下载失败",
   "error_message": "错误信息",
   "downloading_file_progress": "正在下载第 index 个文件，当前文件下载进度percentage%",
