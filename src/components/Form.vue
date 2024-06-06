@@ -10,10 +10,10 @@
       :label-position="'left'"
       v-if="!loading"
     >
-      <el-form-item label="数据表列" prop="tableId">
+      <el-form-item :label="$t('data_table_column')" prop="tableId">
         <el-select
           v-model="formData.tableId"
-          placeholder="请选择数据表"
+          :placeholder="$t('select_data_table')"
           style="width: 100%"
         >
           <el-option
@@ -24,10 +24,10 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="视图列" prop="viewField">
+      <el-form-item :label="$t('view_column')" prop="viewField">
         <el-select
           v-model="formData.viewField"
-          placeholder="请选择数据表"
+          :placeholder="$t('select_view')"
           style="width: 100%"
         >
           <el-option
@@ -38,11 +38,11 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="附件字段(可多选)" prop="attachmentFileds">
+      <el-form-item :label="$t('attachment_fields')" prop="attachmentFileds">
         <el-select
           v-model="formData.attachmentFileds"
           multiple
-          placeholder="请选择附件字段"
+          :placeholder="$t('select_attachment_fields')"
           style="width: 100%"
         >
           <el-option
@@ -54,24 +54,24 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="文件命名方式" prop="fileNameType">
+      <el-form-item :label="$t('file_naming_method')" prop="fileNameType">
         <el-select
           v-model="formData.fileNameType"
-          placeholder="请选择附件字段"
+          :placeholder="$t('select_file_naming_method')"
           style="width: 100%"
         >
-          <el-option :label="'原文件名称'" :value="0" />
-          <el-option :label="'从表字段选择'" :value="1" />
+          <el-option :label="$t('original_file_name')" :value="0" />
+          <el-option :label="$t('select_from_table_fields')" :value="1" />
         </el-select>
       </el-form-item>
       <el-form-item
-        label="字段列"
+        :label="$t('file_name_field')"
         prop="fileNameByField"
         v-if="formData.fileNameType === 1"
       >
         <el-select
           v-model="formData.fileNameByField"
-          placeholder="请选择文件命名字段"
+          :placeholder="$t('select_file_name_field')"
           style="width: 100%"
         >
           <el-option
@@ -82,28 +82,30 @@
           />
         </el-select>
       </el-form-item>
-      <el-form-item label="下载方式" prop="downloadType">
+      <el-form-item :label="$t('download_method')" prop="downloadType">
         <el-select
           v-model="formData.downloadType"
-          placeholder="请选择下载方式"
+          :placeholder="$t('select_download_method')"
           style="width: 100%"
         >
-          <el-option :label="'逐个文件下载'" :value="2" />
-          <el-option :label="'zip打包下载'" :value="1" />
+          <el-option :label="$t('download_individual_files')" :value="2" />
+          <el-option :label="$t('zip_download')" :value="1" />
         </el-select>
       </el-form-item>
       <div style="display: flex">
         <el-form-item
-          prop="downloadTypeByFoldes"
+          prop="downloadTypeByFolders"
           v-if="formData.downloadType === 1"
         >
           <template #label>
             <p style="display: flex; align-items: center">
-              <span style="margin-right: 2px">文件夹分类</span>
+              <span style="margin-right: 2px">{{
+                $t("folder_classification")
+              }}</span>
               <el-popover
                 placement="top-start"
                 trigger="hover"
-                content="可根据所选字段进行一级、二级文件夹分类下载"
+                :content="$t('folder_classification_hint')"
               >
                 <template #reference>
                   <el-icon><InfoFilled /></el-icon>
@@ -112,21 +114,21 @@
             </p>
           </template>
           <el-switch
-            v-model="formData.downloadTypeByFoldes"
-            active-text="是"
-            inactive-text="否"
+            v-model="formData.downloadTypeByFolders"
+            :active-text="$t('yes')"
+            :inactive-text="$t('no')"
           />
         </el-form-item>
       </div>
 
       <el-form-item
-        label="一级目录"
+        :label="$t('first_directory')"
         prop="firstFolderKey"
-        v-if="formData.downloadType === 1 && formData.downloadTypeByFoldes"
+        v-if="formData.downloadType === 1 && formData.downloadTypeByFolders"
       >
         <el-select
           v-model="formData.firstFolderKey"
-          placeholder="请选择一级目录"
+          :placeholder="$t('select_first_directory')"
           style="width: 100%"
           clearable
         >
@@ -139,14 +141,14 @@
         </el-select>
       </el-form-item>
       <el-form-item
-        label="二级目录"
+        :label="$t('second_directory')"
         prop="secondFolderKey"
-        v-if="formData.downloadType === 1 && formData.downloadTypeByFoldes"
+        v-if="formData.downloadType === 1 && formData.downloadTypeByFolders"
       >
         <el-select
           clearable
           v-model="formData.secondFolderKey"
-          placeholder="请选择二级目录"
+          :placeholder="$t('select_second_directory')"
           style="width: 100%"
         >
           <el-option
@@ -159,25 +161,25 @@
       </el-form-item>
 
       <div class="btns">
-        <el-button type="primary" @click="submit" :loading="submitLoading"
-          >下载 <el-icon><Download /></el-icon
-        ></el-button>
+        <el-button type="primary" @click="submit" :loading="submitLoading">
+          {{ $t("download") }} <el-icon><Download /></el-icon>
+        </el-button>
       </div>
     </el-form>
     <el-dialog
       v-model="submitLoading"
-      title="文件下载"
+      :title="$t('file_download')"
       width="80%"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :append-to-body="true"
     >
       <div class="dialog-process">
-        <h4>下载总进度</h4>
+        <h4>{{ $t("download_progress") }}</h4>
         <div class="dialog-circle">
           <ProgressCircle :percent="percent" />
         </div>
-        <h4>下载详情</h4>
+        <h4>{{ $t("download_details") }}</h4>
         <div class="prompt" v-if="submitLoading">
           <p v-for="(item, index) in loadingText" :key="index">
             {{ item }}
@@ -189,7 +191,9 @@
       </div>
       <template #footer v-if="finshDownload">
         <span class="dialog-footer">
-          <el-button @click="submitLoading = false">完 成</el-button>
+          <el-button @click="submitLoading = false">{{
+            $t("complete")
+          }}</el-button>
         </span>
       </template>
     </el-dialog>
@@ -308,7 +312,7 @@ export default {
         fileNameByField: "",
         viewField: "",
         downloadType: 1,
-        downloadTypeByFoldes: false,
+        downloadTypeByFolders: false,
 
         firstFolderKey: "",
         secondFolderKey: "",
@@ -379,7 +383,7 @@ export default {
         margin-bottom: 16px;
         font-size: 16px;
         border-left: 3px solid var(--el-color-primary);
-        padding-left:8px;
+        padding-left: 8px;
       }
       .dialog-circle {
         position: relative;
@@ -398,7 +402,6 @@ export default {
       }
     }
     .prompt {
-    
       h4 {
         margin-bottom: 8px;
       }

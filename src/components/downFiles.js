@@ -2,8 +2,11 @@ import { bitable } from "@lark-base-open/js-sdk";
 import { saveAs } from "file-saver";
 import JSZip from "jszip";
 import axios from "axios";
+import { i18n } from "@/locales/i18n.js";
 
-const DEFAULT_FOLDER_NAME = "未分类";
+const $t = i18n.global.t;
+
+const DEFAULT_FOLDER_NAME = $t("uncategorized");
 const MAX_ZIP_SIZE_NUM = 1;
 
 const MAX_ZIP_SIZE = MAX_ZIP_SIZE_NUM * 1024 * 1024 * 1024;
@@ -30,7 +33,9 @@ const getFolderName = (value) => {
 
 const replaceFileName = (originalName, newName) => {
   const extension = originalName.split(".").pop();
-  return newName ? `${newName}.${extension}` : `未定义.${extension}`;
+  return newName
+    ? `${newName}.${extension}`
+    : `${$t("undefined")}.${extension}`;
 };
 
 // Strategy Pattern for download methods
@@ -58,7 +63,9 @@ class DownloadStrategy {
       return response.data;
     } catch (error) {
       this.datas.errorText.push(
-        `${file.file_name} 文件下载失败，错误信息: ${error.message}`
+        `${file.file_name} ${t("file_download_failed")}，${t(
+          "error_message"
+        )}: ${error.message}`
       );
       throw error;
     }
@@ -70,7 +77,9 @@ class DownloadStrategy {
         file,
         index,
         (percentage, index) => {
-          this.datas.loadingText[4] = `正在下载第 ${index} 个 文件,当前文件下载进度${percentage}%`;
+          this.datas.loadingText[4] = $t('downloading_file_progress')
+            .replace("index", index)
+            .replace("percentage", percentage);
         }
       ).catch();
       const objectUrl = URL.createObjectURL(blob);
@@ -82,7 +91,9 @@ class DownloadStrategy {
       URL.revokeObjectURL(objectUrl);
     } catch (error) {
       datas.errorText.push(
-        `${file.file_name} 文件下载失败，错误信息: ${error.message}`
+        $t('file_download_failed_message')
+          .replace("file_name", file.file_name)
+          .replace("error_message", error.message)
       );
     }
   }
@@ -93,13 +104,17 @@ class DownloadStrategy {
         file,
         index,
         (percentage, index) => {
-          this.datas.loadingText[4] = `正在下载第 ${index} 个 文件,当前文件下载进度${percentage}%`;
+          this.datas.loadingText[4] = $t('downloading_file_progress')
+            .replace("index", index)
+            .replace("percentage", percentage);
         }
       ).catch();
       zip.file(`${path}/${file.file_name}`, blob);
     } catch (error) {
       this.datas.errorText.push(
-        `${file.file_name} 文件下载失败，错误信息: ${error.message}`
+        $t('file_download_failed_message')
+          .replace("file_name", file.file_name)
+          .replace("error_message", error.message)
       );
     }
   }
@@ -119,7 +134,9 @@ class ZipDownloadStrategy extends DownloadStrategy {
       { type: "blob" },
       (metadata) => {
         const percent = metadata.percent.toFixed(2);
-        this.datas.loadingText[len] = `打包文件生成中：${percent}%已完成。`;
+        this.datas.loadingText[len] = $t(
+          "file_packing_progress_message"
+        ).replace("percentage", percent);
       }
     );
     saveAs(
@@ -136,9 +153,9 @@ class ZipDownloadStrategy extends DownloadStrategy {
   async processFiles(fileList, withFolders = false, callback = () => {}) {
     for (let index = 0; index < fileList.length; index++) {
       const file = fileList[index];
-      this.datas.loadingText[4] = `正在下载第 ${
-        index + 1
-      } 个 文件,当前文件下载进度0%`;
+      this.datas.loadingText[4] = $t('downloading_file_progress')
+        .replace("index", index + 1)
+        .replace("percentage", 0);
 
       let path = "";
       if (withFolders) {
@@ -151,9 +168,9 @@ class ZipDownloadStrategy extends DownloadStrategy {
       } else {
         this.currentTotalSize += file.size;
         if (this.currentTotalSize >= MAX_ZIP_SIZE) {
-          this.datas.loadingText[
-            this.datas.loadingText.length
-          ] = `当前文件大小即将超过${MAX_ZIP_SIZE_NUM}GB，避免插件崩溃，准备先下载到您本地，在进行后续下载...`;
+          this.datas.loadingText[this.datas.loadingText.length] = $t(
+            "file_size_warning_message"
+          ).replace("max_size", MAX_ZIP_SIZE_NUM);
           await this.saveAndResetZip();
         }
 
@@ -190,7 +207,7 @@ class FileDownloader {
     this.strategy = this.getStrategy(datas.formData.downloadType);
     this.datas.nameSpace = new Set();
     this.datas.loadingText = [];
-    this.datas.errorText = []
+    this.datas.errorText = [];
     this.datas.percent = 0;
     this.datas.finshDownload = false;
     this.datas.submitLoading = true;
@@ -217,7 +234,10 @@ class FileDownloader {
           fileQty += oCell.length;
           cellsAddressList.push({ fieldId, recordId });
           this.datas.fileQty += oCell.length;
-          this.datas.loadingText[0] = `计算待下载文件数量……${fileQty}个。若较慢，请刷新页面后重新尝试。`;
+          this.datas.loadingText[0] = $t("calculating_files_message").replace(
+            "fileQty",
+            fileQty
+          );
         }
       }
     }
@@ -271,13 +291,17 @@ class FileDownloader {
       oTable
     );
     this.total = fileQty;
-    this.datas.loadingText[0] = `共计有${fileQty}个文件待下载。`;
+    this.datas.loadingText[0] = $t("files_pending_download_message").replace(
+      "fileQty",
+      fileQty
+    );
+
     if (!fileQty) {
-      this.datas.loadingText[1]= `当前无文件需要下载，请确认`;
+      this.datas.loadingText[1] = $t("no_files_to_download_message");
       this.datas.finshDownload = true;
       return "";
     }
-    this.datas.loadingText[1] = `正在获取文件信息...`;
+    this.datas.loadingText[1] = $t("fetching_file_info_message");
     let totalSize = 0;
     const fileList = [];
 
@@ -293,20 +317,23 @@ class FileDownloader {
         ].filter(Boolean)
       );
       fileInfo.forEach((item) => (totalSize += item.size));
-      this.datas.loadingText[2] = `当前文件总大小${getFileSize(totalSize)}`;
+      this.datas.loadingText[2] = `${$t(
+        "total_file_size_message"
+      )}${getFileSize(totalSize)}`;
       fileList.push(...fileInfo);
     }
-    this.datas.loadingText[3] = `准备下载文件`;
+    this.datas.loadingText[3] = $t("preparing_to_download_files_message");
     const withFolders =
-      this.datas.formData.downloadTypeByFoldes &&
+      this.datas.formData.downloadTypeByFolders &&
       this.datas.formData.firstFolderKey;
     if (this.datas.formData.downloadType === 2) {
       for (let index = 0; index < fileList.length; index++) {
         this.current = index;
         const file = fileList[index];
-        this.datas.loadingText[4] = `正在下载第 ${
-          index + 1
-        } 个 文件,当前文件下载进度0%`;
+        this.datas.loadingText[4] = $t("")
+          .replace("index", index + 1)
+          .replace("percentage", 0);
+
         await this.strategy.downloadFile(file, index + 1);
         this.getProgress();
       }

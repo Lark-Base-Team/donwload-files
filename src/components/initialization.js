@@ -1,7 +1,10 @@
 import { bitable, FieldType } from "@lark-base-open/js-sdk";
 import { ElMessage } from "element-plus";
+import { i18n } from '@/locales/i18n.js'
 import { ref, onMounted, reactive, toRefs, watch, watchEffect } from "vue";
 let first = true;
+const $t = i18n.global.t
+
 const SUPPORT_TEXTS = [
   "AutoNumber",
   "Barcode",
@@ -99,7 +102,7 @@ export const initialization = async (datas) => {
   console.log("allAttachmentFieldList", datas.allAttachmentFieldList);
 
   if (!datas.allAttachmentFieldList) {
-    return alert("当前多维表格无附件类型字段");
+    return alert($t("current_multi_dimensional_table_no_attachment_fields"));
   }
 
   // 刚渲染本插件的时候，用户所选的tableId等信息

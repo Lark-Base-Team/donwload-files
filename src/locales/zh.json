@@ -1,3 +1,69 @@
 {
-  "title":"标题"
+  "usage_instructions": "使用须知",
+  "notice_1": "借鉴插件“附件批量下载”模板，进行优化升级",
+  "notice_2": "调用浏览器原生下载功能，若浏览器提示下载多个文件时，请选择「允许」",
+  "notice_3": "要有附件下载权限，使用时请确保拥有权限",
+  "notice_4": "文件下载方式为zip时，若附件过大，则会默认分开下载，避免浏览器崩溃",
+  "notice_5": "下载路径为浏览器默认下载路径；下载时，使用附件的原始文件名，若出现重名，浏览器将自动添加后缀做区分",
+  "notice_6": "多维表格新增数据表、视图或字段时，请重新运行本工具",
+  "notice_7": "Zip打包功能使用了JSZip插件，大数据响应体验较慢，当前仅作代码交流学习用。大文件时，请使用逐个下载模式。",
+  "refresh_form": "刷新表单",
+
+  "data_table_column": "数据表列",
+  "view_column": "视图列",
+  "attachment_fields": "附件字段",
+  "file_naming_method": "文件命名方式",
+  "file_name_field": "字段列",
+  "download_method": "下载方式",
+  "first_directory": "一级目录",
+  "second_directory": "二级目录",
+  "download": "下载",
+  "file_download": "文件下载",
+  "download_progress": "下载总进度",
+  "download_details": "下载详情",
+  "complete": "完成",
+  "select_data_table": "请选择数据表",
+  "select_view": "请选择数据表",
+  "select_attachment_fields": "请选择附件字段",
+  "select_file_naming_method": "请选择附件字段",
+  "select_file_name_field": "请选择文件命名字段",
+  "select_download_method": "请选择下载方式",
+  "folder_classification": "文件夹分类",
+  "folder_classification_hint": "可根据所选字段进行一级、二级文件夹分类下载",
+  "original_file_name": "原文件名称",
+  "select_from_table_fields": "从表字段选择",
+  "download_individual_files": "逐个文件下载",
+  "zip_download": "zip打包下载",
+  "yes": "是",
+  "no": "否",
+  "select_first_directory": "请选择一级目录",
+  "select_second_directory": "请选择二级目录",
+
+
+  "uncategorized": "未分类",
+  "undefined": "Undefined",
+  "file_download_failed": "文件下载失败",
+  "error_message": "错误信息",
+  "downloading_file_progress": "正在下载第 index 个文件，当前文件下载进度percentage%",
+  "file_download_failed_message": "file_name 文件下载失败，错误信息：error_message",
+  "file_packing_progress_message": "打包文件生成中：percentage%已完成。",
+  "file_size_warning_message": "当前文件大小即将超过 max_size GB，避免插件崩溃，准备先下载到您本地，再进行后续下载...",
+  "calculating_files_message": "计算待下载文件数量…… fileQty 个。若较慢，请刷新页面后重新尝试。",
+  "files_pending_download_message": "共计有 fileQty 个文件待下载。",
+  "no_files_to_download_message": "当前无文件需要下载，请确认。",
+  "fetching_file_info_message": "正在获取文件信息...",
+  "total_file_size_message": "当前文件总大小",
+  "preparing_to_download_files_message": "准备下载文件",
+
+
+
+
+
+
+
+
+
+  "current_multi_dimensional_table_no_attachment_fields": "当前多维表格无附件类型字段"
+
+
 }
