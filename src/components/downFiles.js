@@ -62,11 +62,6 @@ class DownloadStrategy {
       });
       return response.data;
     } catch (error) {
-      this.datas.errorText.push(
-        `${file.file_name} ${t("file_download_failed")}，${t(
-          "error_message"
-        )}: ${error.message}`
-      );
       throw error;
     }
   }
@@ -250,7 +245,6 @@ class FileDownloader {
 
     for (const cell of oCell) {
       const { token, name: oFileName, size } = cell;
-      console.log(oFileName);
       const oURL = await oTable.getAttachmentUrl(token, fieldId, recordId);
       const newName = indexFieldId
         ? await oTable.getCellString(indexFieldId, recordId)
