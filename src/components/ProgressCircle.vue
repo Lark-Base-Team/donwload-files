@@ -52,6 +52,7 @@ watch(
   () => props.percent,
   (newVal) => {
     count.value = newVal;
+    count.value>=100?count.value=100:count.value
   }
 );
 const style = computed(() => {

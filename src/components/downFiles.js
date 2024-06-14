@@ -104,7 +104,7 @@ class DownloadStrategy {
             .replace("percentage", percentage);
         }
       ).catch();
-      zip.file(`${path}/${file.file_name}`, blob);
+      zip.file(`${path}${file.file_name}`, blob);
     } catch (error) {
       this.datas.errorText.push(
         $t('file_download_failed_message')
