@@ -6,6 +6,7 @@ let first = true;
 const $t = i18n.global.t
 
 const SUPPORT_TEXTS = [
+  "Formula",
   "AutoNumber",
   "Barcode",
   "CreatedTime",
