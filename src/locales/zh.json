@@ -53,17 +53,13 @@
   "no_files_to_download_message": "当前无文件需要下载，请确认。",
   "fetching_file_info_message": "正在获取文件信息...",
   "total_file_size_message": "当前文件总大小",
-  "preparing_to_download_files_message": "准备下载文件",
+  "preparing_to_download_files_message": "准备下载文件"
 
 
 
 
 
 
-
-
-
-  "current_multi_dimensional_table_no_attachment_fields": "当前多维表格无附件类型字段"
 
 
 }

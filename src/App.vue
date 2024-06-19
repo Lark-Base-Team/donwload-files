@@ -1,16 +1,16 @@
 <script setup>
-import Form from "./components/Form.vue";
-import { Warning, Refresh } from "@element-plus/icons-vue";
-import { ref } from "vue";
-import { useTheme } from "@/hooks/useTheme";
-useTheme();
-const isVisible = ref(true);
+import Form from './components/Form.vue'
+import { Warning, Refresh } from '@element-plus/icons-vue'
+import { ref } from 'vue'
+import { useTheme } from '@/hooks/useTheme'
+useTheme()
+const isVisible = ref(true)
 const refreshForm = () => {
-  isVisible.value = false;
+  isVisible.value = false
   setTimeout(() => {
-    isVisible.value = true;
-  }, 300);
-};
+    isVisible.value = true
+  }, 300)
+}
 </script>
 
 <template>

@@ -51,9 +51,8 @@
   "file_size_warning_message": "The current file size is about to exceed max_size GB. To avoid plugin crashes, we will first download it to your local storage before proceeding with subsequent downloads...",
 
   "uncategorized": "unclassified",
-  "undefined": "undefined",
+  "undefined": "undefined"
 
-  "current_multi_dimensional_table_no_attachment_fields": "The current multi-dimensional table has no attachment fields"
 
 
 }
