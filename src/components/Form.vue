@@ -100,7 +100,7 @@ width="80%"
 :close-on-click-modal="false"
       :close-on-press-escape="false"
 :append-to-body="true">
-      <DownModel v-if="downModelVis" />
+      <DownModel v-if="downModelVis" :formData="formData"/>
       <template #footer v-if="datas.finshDownload">
         <span class="dialog-footer">
           <el-button @click="downModelVis = false">{{
@@ -117,7 +117,6 @@ import { bitable, FieldType } from '@lark-base-open/js-sdk'
 import { Download, InfoFilled } from '@element-plus/icons-vue'
 import DownModel from './DownModel.vue'
 import { SUPPORT_TYPES, getInfoByTableMetaList } from '@/hooks/useBitable.js'
-import FileDownloader from './downFiles.js'
 
 const elform = ref(null)
 const loading = ref(true)
@@ -258,8 +257,6 @@ const submit = async() => {
   await elform.value.validate(async(valid) => {
     if (valid) {
       downModelVis.value = true
-      const fileDownloader = new FileDownloader(formData)
-      await fileDownloader.execute()
     }
   })
 }

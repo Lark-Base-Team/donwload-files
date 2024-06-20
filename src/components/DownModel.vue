@@ -5,10 +5,10 @@
       <ProgressCircle :percent="percent" />
     </div>
     <h4>{{ $t("download_details") }}</h4>
-    <div class="prompt" >
-      <p v-for="(item, index) in loadingText" :key="index">
-        {{ item }}
-      </p>
+    <div class="prompt">
+      <p>共计有 {{ totalLength }} 个文件待下载。</p>
+      <p>当前文件总大小{{ getFileSize(totalSize) }}</p>
+      <p>{{ fileInfo }}</p>
       <p v-for="(item, index) in errorText" :key="index" style="color: red">
         {{ item }}
       </p>
@@ -18,10 +18,48 @@
 <script setup>
 import { ref, onMounted, reactive, toRefs, watch, computed } from 'vue'
 import ProgressCircle from './ProgressCircle.vue'
-
+import FileDownloader from './downFiles.js'
+import { i18n } from '@/locales/i18n.js'
+import { getFileSize } from '@/utils/index.js'
+const $t = i18n.global.t
 const percent = ref(0)
 const loadingText = ref([])
 const errorText = ref([])
+const totalSize = ref(0)
+const totalLength = ref(0)
+
+const props = defineProps({
+  formData: {
+    type: Object,
+    default: () => {}
+  }
+})
+
+const { formData } = toRefs(props)
+onMounted(async() => {
+  const fileDownloader = new FileDownloader(formData.value)
+  fileDownloader.on('preding', (cells) => {
+    totalLength.value += cells.length
+    cells.forEach((cell) => {
+      totalSize.value += cell.size
+    })
+  })
+  fileDownloader.on('info', (info) => {
+    loadingText.value.push(info)
+  })
+  fileDownloader.on('error', (error) => {
+    errorText.value.push(error)
+  })
+  fileDownloader.on('progress', (cell) => {
+    percent.value = (cell.downloaded / cell.size) * 100
+  })
+  fileDownloader.on('finshed', (cells) => {
+    percent.value = 100
+  })
+  fileDownloader.on('progress', (cellList) => {})
+  await fileDownloader.startDownload()
+  console.log(fileDownloader)
+})
 </script>
 
 <style scoped lang="scss">

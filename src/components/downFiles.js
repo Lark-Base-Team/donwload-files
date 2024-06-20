@@ -203,6 +203,12 @@ class FileDownloader {
     this.attachmentFileds = formData.attachmentFileds
     this.viewId = formData.viewId
 
+    this.progressListeners = [] // 用于存储进度事件的监听器
+    this.errorListeners = [] // 用于存储错误事件的监听器
+    this.predingListeners = [] // 用于存储获取文件信息的监听器
+    this.infoListeners = [] // 用于存储获取文件信息的监听器
+    this.finshedListeners = [] // 用于存储获取文件信息的监听器
+
     this.oTable = null
     this.total = 0
     this.current = 0
@@ -229,9 +235,10 @@ class FileDownloader {
     for (const fieldId of this.attachmentFileds) {
       for (const recordId of oRecordList) {
         const cell = await this.oTable.getCellValue(fieldId, recordId)
-        console.log(cell)
+
         if (cell) {
           cellList.push(...cell)
+          this.emit('preding', cell)
         }
       }
     }
@@ -280,70 +287,70 @@ class FileDownloader {
   getProgress() {
     this.datas.percent = ((this.current / this.total) * 100).toFixed(2)
   }
+  // 注册进度事件监听器
+  on(event, callback) {
+    switch (event) {
+      case 'progress':
+        this.progressListeners.push(callback)
+        break
+      case 'info':
+        this.infoListeners.push(callback)
+        break
+      case 'finshed':
+        this.finshedListeners.push(callback)
+        break
+      case 'error':
+        this.errorListeners.push(callback)
+        break
+      case 'preding':
+        this.predingListeners.push(callback)
+        break
+      default:
+        break
+    }
 
-  async execute() {
+    return this
+  }
+  emit(type, messgae) {
+    this[type + 'Listeners']?.forEach((listener) => {
+      listener(messgae)
+    })
+  }
+
+  async startDownload() {
     this.oTable = await bitable.base.getTableById(this.tableId)
     this.cellList = await this.getCellsList()
-    this.datas.loadingText[0] = $t('files_pending_download_message').replace(
-      'fileQty',
-      this.cellList.length
-    )
 
-    if (!fileQty) {
-      this.datas.loadingText[1] = $t('no_files_to_download_message')
-      this.datas.finshDownload = true
+    if (!this.cellList.length) {
+      this.emit('info', $t('no_files_to_download_message'))
+      this.emit('finshed')
       return ''
     }
-    this.datas.loadingText[1] = $t('fetching_file_info_message')
-    let totalSize = 0
-    const fileList = []
-    // 计算文件总大小
-    for (const cell of cellsAddressList) {
-      // const fileInfo = await this.getFileInfo(
-      //   oTable,
-      //   cell.fieldId,
-      //   cell.recordId,
-      //   indexFieldId,
-      //   [
-      //     this.datas.formData.firstFolderKey,
-      //     this.datas.formData.secondFolderKey,
-      //   ].filter(Boolean)
-      // );
-      const { size, oCell } = await this.getCellFileSize(
-        oTable,
-        cell.fieldId,
-        cell.recordId
-      )
-      fileList.push(...oCell)
-      totalSize += size
-      this.datas.loadingText[2] = `${$t(
-        'total_file_size_message'
-      )}${getFileSize(totalSize)}`
-    }
-    this.datas.loadingText[3] = $t('preparing_to_download_files_message')
-    const withFolders =
-      this.datas.formData.downloadTypeByFolders &&
-      this.datas.formData.firstFolderKey
-    if (this.datas.formData.downloadType === 2) {
-      for (let index = 0; index < fileList.length; index++) {
-        this.current = index
-        const file = fileList[index]
-        this.datas.loadingText[4] = $t('')
-          .replace('index', index + 1)
-          .replace('percentage', 0)
+    this.emit('info', $t('preparing_to_download_files_message'))
 
-        await this.strategy.downloadFile(file, index + 1)
-        this.getProgress()
-      }
-    } else {
-      await this.strategy.processFiles(fileList, withFolders, (index) => {
-        this.current = index
-        this.getProgress()
-      })
-    }
-    this.current = fileList.length
-    this.getProgress()
-    this.datas.finshDownload = true
+    // const withFolders =
+    //   this.datas.formData.downloadTypeByFolders &&
+    //   this.datas.formData.firstFolderKey
+    // if (this.datas.formData.downloadType === 2) {
+    //   for (let index = 0; index < fileList.length; index++) {
+    //     this.current = index
+    //     const file = fileList[index]
+    //     this.datas.loadingText[4] = $t('')
+    //       .replace('index', index + 1)
+    //       .replace('percentage', 0)
+
+    //     await this.strategy.downloadFile(file, index + 1)
+    //     this.getProgress()
+    //   }
+    // } else {
+    //   await this.strategy.processFiles(fileList, withFolders, (index) => {
+    //     this.current = index
+    //     this.getProgress()
+    //   })
+    // }
+    // this.current = fileList.length
+    // this.getProgress()
+    // this.datas.finshDownload = true
   }
 }
 
