@@ -100,7 +100,7 @@ width="80%"
 :close-on-click-modal="false"
       :close-on-press-escape="false"
 :append-to-body="true">
-      <DownModel v-if="downModelVis" :formData="formData"/>
+      <DownModel v-if="downModelVis" :formData="formData" @finsh="datas.finshDownload=true" :zipName="activeTableInfo.tableName"/>
       <template #footer v-if="datas.finshDownload">
         <span class="dialog-footer">
           <el-button @click="downModelVis = false">{{
@@ -256,6 +256,7 @@ const submit = async() => {
   if (!elform.value) return
   await elform.value.validate(async(valid) => {
     if (valid) {
+      datas.finshDownload = false
       downModelVis.value = true
     }
   })

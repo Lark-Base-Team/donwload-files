@@ -8,7 +8,10 @@
     <div class="prompt">
       <p>共计有 {{ totalLength }} 个文件待下载。</p>
       <p>当前文件总大小{{ getFileSize(totalSize) }}</p>
+
       <p>{{ fileInfo }}</p>
+      <p >{{ maxInfo }}</p>
+      <p>{{ zipProgressText }}</p>
       <p v-for="(item, index) in errorText" :key="index" style="color: red">
         {{ item }}
       </p>
@@ -16,49 +19,69 @@
   </div>
 </template>
 <script setup>
-import { ref, onMounted, reactive, toRefs, watch, computed } from 'vue'
+import { ref, onMounted, reactive, toRefs, computed, defineEmits } from 'vue'
 import ProgressCircle from './ProgressCircle.vue'
 import FileDownloader from './downFiles.js'
 import { i18n } from '@/locales/i18n.js'
 import { getFileSize } from '@/utils/index.js'
 const $t = i18n.global.t
-const percent = ref(0)
-const loadingText = ref([])
-const errorText = ref([])
+const emit = defineEmits(['finsh'])
+
+const current = ref(0)
 const totalSize = ref(0)
 const totalLength = ref(0)
 
+const fileInfo = ref('')
+const maxInfo = ref('')
+const errorText = ref([])
+const zipProgressText = ref('')
+
 const props = defineProps({
+  zipName: {
+    type: String,
+    default: ''
+  },
   formData: {
     type: Object,
     default: () => {}
   }
 })
-
-const { formData } = toRefs(props)
+const percent = computed(() => {
+  return ((current.value / totalLength.value) * 100).toFixed(2) - 0
+})
+const { formData, zipName } = toRefs(props)
 onMounted(async() => {
-  const fileDownloader = new FileDownloader(formData.value)
+  const fileDownloader = new FileDownloader({ ...formData.value, zipName: zipName.value })
   fileDownloader.on('preding', (cells) => {
     totalLength.value += cells.length
     cells.forEach((cell) => {
       totalSize.value += cell.size
     })
   })
-  fileDownloader.on('info', (info) => {
-    loadingText.value.push(info)
+  fileDownloader.on('error', (errorInfo) => {
+    const text = $t('file_download_failed_message')
+      .replace('file_name', errorInfo.name)
+      .replace('error_message', errorInfo.message)
+    errorText.value.push(text)
   })
-  fileDownloader.on('error', (error) => {
-    errorText.value.push(error)
+  fileDownloader.on('max_size_warning', (info) => {
+    maxInfo.value = info
   })
-  fileDownloader.on('progress', (cell) => {
-    percent.value = (cell.downloaded / cell.size) * 100
+  fileDownloader.on('progress', (info) => {
+    current.value = info.index
+    fileInfo.value = $t('downloading_file_progress')
+      .replace('index', info.index)
+      .replace('percentage', info.percentage)
   })
   fileDownloader.on('finshed', (cells) => {
-    percent.value = 100
+    emit('finsh')
   })
-  fileDownloader.on('progress', (cellList) => {})
+  fileDownloader.on('zip_progress', (percent) => {
+    maxInfo.value = ''
+    const text = $t('file_packing_progress_message').replace('percentage', percent)
+    zipProgressText.value = text
+  })
   await fileDownloader.startDownload()
-  console.log(fileDownloader)
 })
 </script>
 
