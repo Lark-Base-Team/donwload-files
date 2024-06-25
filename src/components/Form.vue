@@ -297,7 +297,8 @@ onMounted(async() => {
   }
 
   .el-dialog__body {
-    min-height: 60vh;
+    height: 60vh;
+    overflow: auto;
     padding: 16px;
   }
 }

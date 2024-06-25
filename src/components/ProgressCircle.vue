@@ -39,30 +39,30 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from 'vue'
 const props = defineProps({
   percent: {
     type: Number,
-    default: 0,
-  },
-});
+    default: 0
+  }
+})
 
-const count = ref(0);
+const count = ref(0)
 watch(
   () => props.percent,
   (newVal) => {
-    count.value = newVal;
-    count.value>=100?count.value=100:count.value
+    count.value = newVal
+    count.value >= 100 ? count.value = 100 : count.value
   }
-);
+)
 const style = computed(() => {
   return {
-    transform: `translate(0, ${100 - count.value}%)`,
-  };
-});
+    transform: `translate(0, ${100 - count.value}%)`
+  }
+})
 onMounted(() => {
-  count.value = props.percent;
-});
+  count.value = props.percent
+})
 </script>
 <style scoped lang="scss">
 .box {
@@ -73,7 +73,7 @@ onMounted(() => {
   background: #020438;
   border-radius: 100%;
   overflow: hidden;
- 
+
 }
 @media screen and (max-width: 375px) {
   .box {

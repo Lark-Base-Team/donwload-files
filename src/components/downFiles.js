@@ -2,8 +2,11 @@ import { bitable } from '@lark-base-open/js-sdk'
 import { saveAs } from 'file-saver'
 import JSZip from 'jszip'
 import axios from 'axios'
+import { chunkArrayByMaxSize } from '@/utils/index.js'
+
 import { i18n } from '@/locales/i18n.js'
 import to from 'await-to-js'
+import { SuperTask } from '@/utils/SuperTask.js'
 
 import {
   removeSpecialChars,
@@ -13,7 +16,7 @@ import {
 
 const $t = i18n.global.t
 
-const MAX_ZIP_SIZE_NUM = 2
+const MAX_ZIP_SIZE_NUM = 1
 
 const MAX_ZIP_SIZE = MAX_ZIP_SIZE_NUM * 1024 * 1024 * 1024
 
@@ -23,17 +26,11 @@ class FileDownloader {
       this[key] = formData[key]
     })
 
-    this.progressListeners = [] // 用于存储进度事件的监听器
-    this.errorListeners = [] // 用于存储错误事件的监听器
-    this.predingListeners = [] // 用于存储获取文件信息的监听器
-    this.infoListeners = [] // 用于存储获取文件信息的监听器
-    this.finshedListeners = [] // 用于存储获取文件信息的监听器
-
     this.oTable = null
 
     this.currentTotalSize = 0
     this.nameSpace = new Set()
-    this.zip = new JSZip()
+    this.zip = null
   }
 
   async getCellsList() {
@@ -92,7 +89,6 @@ class FileDownloader {
     const updateCellNames = (cell, newName) => {
       if (newName !== cell.name) {
         const cName = replaceFileName(cell.name, newName, $t('undefined'))
-        console.log(cName)
         cell.name = removeSpecialChars(cName)
       }
     }
@@ -152,29 +148,47 @@ class FileDownloader {
     return name
   }
   async zipDownLoad() {
-    for (let index = 0; index < this.cellList.length; index++) {
-      const fileInfo = this.cellList[index]
-      const { token, fieldId, recordId, path, name, size, order } = fileInfo
-      this.currentTotalSize += size
-      if (size > MAX_ZIP_SIZE) {
-        await this.sigleDownLoad(fileInfo)
-        continue
-      }
-      if (this.currentTotalSize >= MAX_ZIP_SIZE) {
-        const max_size_warning = $t('file_size_warning_message').replace('max_size', MAX_ZIP_SIZE_NUM)
-        this.emit('max_size_warning', max_size_warning)
-        await this.saveAndResetZip()
-      }
-      this.currentTotalSize += size
-      fileInfo.name = this.getUniqueFileName(name, path)
-      fileInfo.fileUrl = await this.oTable.getAttachmentUrl(
-        token,
-        fieldId,
-        recordId
+    const zipsList = chunkArrayByMaxSize(this.cellList, MAX_ZIP_SIZE)
+    for (const zipList of zipsList) {
+      this.zip = new JSZip()
+      this.currentTotalSize = 0 // 重置当前总大小
+      const superTask = new SuperTask(5)
+      const tasks = zipList.map((fileInfo) => {
+        return async() => await this.processFile(fileInfo)
+      })
+      superTask.setTasks(tasks)
+
+      await superTask.finished().catch((errors) => {})
+
+      const content = await this.zip.generateAsync(
+        { type: 'blob' },
+        (metadata) => {
+          const percent = metadata.percent.toFixed(2)
+          this.emit('zip_progress', percent)
+        }
       )
-      await this.addToZip(fileInfo)
+      saveAs(content, `${this.zipName}.zip`)
     }
-    this.saveAndResetZip()
+  }
+  async getAttachmentUrl(fileInfo) {
+    const { token, fieldId, recordId, path, name } = fileInfo
+
+    fileInfo.name = this.getUniqueFileName(name, path)
+    fileInfo.fileUrl = await this.oTable.getAttachmentUrl(
+      token,
+      fieldId,
+      recordId
+    )
+  }
+  // 处理单个文件的异步函数
+  async processFile(fileInfo) {
+    await this.getAttachmentUrl(fileInfo)
+
+    const blob = await this.downloadFile(fileInfo)
+
+    if (blob) {
+      this.zip.file(`${fileInfo.path}${fileInfo.name}`, blob)
+    }
   }
   async sigleDownLoad(file) {
     const cellList = file ? [file] : this.cellList
@@ -191,69 +205,57 @@ class FileDownloader {
     }
     for (let index = 0; index < cellList.length; index++) {
       const fileInfo = cellList[index]
-      const { token, fieldId, recordId, path, name } = fileInfo
 
-      fileInfo.name = this.getUniqueFileName(name, path)
-      fileInfo.fileUrl = await this.oTable.getAttachmentUrl(
-        token,
-        fieldId,
-        recordId
-      )
+      await this.getAttachmentUrl(fileInfo)
       await downLocal(fileInfo)
     }
   }
-  async saveAndResetZip() {
-    const content = await this.zip.generateAsync(
-      { type: 'blob' },
-      (metadata) => {
-        const percent = metadata.percent.toFixed(2)
-        this.emit('zip_progress', percent)
-      }
-    )
-    saveAs(content, `${this.zipName}.zip`)
-    this.zip = new JSZip()
-    this.currentTotalSize = 0
-  }
-  async downloadFile(fileInfo) {
-    const { fileUrl, name, order } = fileInfo
 
-    const [err, response] = await to(axios({
-      method: 'get',
-      responseType: 'blob',
-      url: fileUrl,
-      onDownloadProgress: (progressEvent) => {
-        if (progressEvent.lengthComputable) {
-          const percentage = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total
-          )
-          this.emit('progress', {
-            index: order,
-            percentage
-          })
-        }
-      }
-    }))
+  async downloadFile(fileInfo) {
+    const { fileUrl, name, order, size } = fileInfo
+    let isDownloadComplete = false // 新增变量，用于跟踪下载是否完成
     this.emit('progress', {
       index: order,
-      percentage: 100
+      name,
+      size,
+      percentage: 0
     })
+    const [err, response] = await to(
+      axios({
+        method: 'get',
+        responseType: 'blob',
+        url: fileUrl,
+        onDownloadProgress: (progressEvent) => {
+          if (progressEvent.lengthComputable && !isDownloadComplete) {
+            const percentage = Math.round(
+              (progressEvent.loaded * 100) / progressEvent.total
+            )
+            this.emit('progress', {
+              index: order,
+              percentage
+            })
+          }
+        }
+      })
+    )
+    if (!isDownloadComplete) {
+      this.emit('progress', {
+        index: order,
+
+        percentage: 100
+      })
+      isDownloadComplete = true // 标记下载完成
+    }
     if (err) {
       this.emit('error', {
-        name,
-        message: err.message
+        message: err.message,
+        index: order
       })
       return null
     }
     return response.data
   }
 
-  async addToZip(fileInfo) {
-    const { path, name } = fileInfo
-    const blob = await this.downloadFile(fileInfo)
-    if (blob) {
-      this.zip.file(`${path}${name}`, blob)
-    }
-  }
   async startDownload() {
     this.oTable = await bitable.base.getTableById(this.tableId)
     // 获取所有附件信息
@@ -273,7 +275,6 @@ class FileDownloader {
     } else {
       await this.zipDownLoad()
     }
-
     this.emit('finshed')
   }
 }
