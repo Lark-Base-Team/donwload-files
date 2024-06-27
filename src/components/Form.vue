@@ -25,6 +25,24 @@
         </el-select>
       </el-form-item>
       <el-form-item :label="$t('view_column')" prop="viewId">
+        <template #label>
+            <p style="display: flex; align-items: center">
+              <span style="margin-right: 2px">{{
+                $t("view_column")
+              }}</span>
+              <el-popover
+                placement="top-start"
+                trigger="hover"
+                :content="'可筛选，下载视图筛选之后的数据'"
+              >
+                <template #reference>
+                  <el-icon>
+                    <InfoFilled />
+                  </el-icon>
+                </template>
+              </el-popover>
+            </p>
+          </template>
         <el-select
           v-model="formData.viewId"
           :placeholder="$t('select_view')"

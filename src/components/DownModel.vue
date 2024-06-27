@@ -6,6 +6,7 @@
     </div>
     <h4>{{ $t("download_details") }}</h4>
     <div class="prompt">
+      <p v-if="totalSize>MAX_SIZE">当前下载附件过大，推荐进行视图筛选在进行下载</p>
       <p>共计有 {{ totalLength }} 个文件待下载。</p>
       <p>当前文件总大小{{ getFileSize(totalSize) }}</p>
       <p>已下载文件数量{{ getCompletedIdsLength }}个</p>
@@ -68,6 +69,7 @@ import { i18n } from '@/locales/i18n.js'
 import { getFileSize, debouncedSort } from '@/utils/index.js'
 const $t = i18n.global.t
 const emit = defineEmits(['finsh'])
+const MAX_SIZE = 1073741824 * 1
 
 const completedIds = ref(new Set())
 
