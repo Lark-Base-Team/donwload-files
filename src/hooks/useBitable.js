@@ -4,6 +4,7 @@ const SUPPORT_TEXTS = [
   'AutoNumber',
   'Barcode',
   'CreatedTime',
+  'SingleSelect',
   'CreatedUser',
   'DateTime',
   'Location',
@@ -38,3 +39,17 @@ export async function getInfoByTableMetaList(tableMetaList) {
   return res
 }
 
+export function sortByOrder(arrayA, arrayB) {
+  // 创建一个映射，以B数组的id为键，值为它们在B数组中的索引
+  const orderMap = new Map(arrayB.map((item, index) => [item.id, index]))
+
+  // 使用排序函数对A数组进行排序
+  return arrayA.sort((a, b) => {
+    // 获取A数组中对象在B数组中的索引
+    const indexA = orderMap.has(a.id) ? orderMap.get(a.id) : Infinity
+    const indexB = orderMap.has(b.id) ? orderMap.get(b.id) : Infinity
+
+    // 根据B数组中的索引进行排序
+    return indexA - indexB
+  })
+}

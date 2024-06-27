@@ -1,57 +1,112 @@
 <template>
   <div v-loading="loading" class="form-container">
-    <el-form ref="elform"
-class="form"
-:model="formData"
-:rules="rules"
-label-width="auto"
+    <el-form
+      ref="elform"
+      class="form"
+      :model="formData"
+      :rules="rules"
+      label-width="auto"
       :scroll-into-view-options="true"
-:label-position="'left'"
-v-if="!loading">
+      :label-position="'left'"
+      v-if="!loading"
+    >
       <el-form-item :label="$t('data_table_column')" prop="tableId">
-        <el-select v-model="formData.tableId" :placeholder="$t('select_data_table')" style="width: 100%">
-          <el-option v-for="meta in datas.allInfo" :key="meta.tableId" :label="meta.tableName" :value="meta.tableId" />
+        <el-select
+          v-model="formData.tableId"
+          :placeholder="$t('select_data_table')"
+          style="width: 100%"
+        >
+          <el-option
+            v-for="meta in datas.allInfo"
+            :key="meta.tableId"
+            :label="meta.tableName"
+            :value="meta.tableId"
+          />
         </el-select>
       </el-form-item>
       <el-form-item :label="$t('view_column')" prop="viewId">
-        <el-select v-model="formData.viewId" :placeholder="$t('select_view')" style="width: 100%">
-          <el-option v-for="meta in viewList" :key="meta.id" :label="meta.name" :value="meta.id" />
+        <el-select
+          v-model="formData.viewId"
+          :placeholder="$t('select_view')"
+          style="width: 100%"
+        >
+          <el-option
+            v-for="meta in viewList"
+            :key="meta.id"
+            :label="meta.name"
+            :value="meta.id"
+          />
         </el-select>
       </el-form-item>
       <el-form-item :label="$t('attachment_fields')" prop="attachmentFileds">
-        <el-select v-model="formData.attachmentFileds"
-multiple
-:placeholder="$t('select_attachment_fields')"
-          style="width: 100%">
-          <el-option v-for="meta in attachmentList" :key="meta.id" :label="meta.name" :value="meta.id" />
+        <el-select
+          v-model="formData.attachmentFileds"
+          multiple
+          :placeholder="$t('select_attachment_fields')"
+          style="width: 100%"
+        >
+          <el-option
+            v-for="meta in attachmentList"
+            :key="meta.id"
+            :label="meta.name"
+            :value="meta.id"
+          />
         </el-select>
       </el-form-item>
 
       <el-form-item :label="$t('file_naming_method')" prop="fileNameType">
-        <el-select v-model="formData.fileNameType" :placeholder="$t('select_file_naming_method')" style="width: 100%">
+        <el-select
+          v-model="formData.fileNameType"
+          :placeholder="$t('select_file_naming_method')"
+          style="width: 100%"
+        >
           <el-option :label="$t('original_file_name')" :value="0" />
           <el-option :label="$t('select_from_table_fields')" :value="1" />
         </el-select>
       </el-form-item>
-      <el-form-item :label="$t('file_name_field')" prop="fileNameByField" v-if="formData.fileNameType === 1">
-        <el-select v-model="formData.fileNameByField" :placeholder="$t('select_file_name_field')" style="width: 100%">
-          <el-option :label="item.name" :value="item.id" v-for="(item, index) in singleSelectList" :key="item.id" />
+      <el-form-item
+        :label="$t('file_name_field')"
+        prop="fileNameByField"
+        v-if="formData.fileNameType === 1"
+      >
+        <el-select
+          v-model="formData.fileNameByField"
+          :placeholder="$t('select_file_name_field')"
+          style="width: 100%"
+        >
+          <el-option
+            :label="item.name"
+            :value="item.id"
+            v-for="(item, index) in singleSelectList"
+            :key="item.id"
+          />
         </el-select>
       </el-form-item>
       <el-form-item :label="$t('download_method')" prop="downloadType">
-        <el-select v-model="formData.downloadType" :placeholder="$t('select_download_method')" style="width: 100%">
+        <el-select
+          v-model="formData.downloadType"
+          :placeholder="$t('select_download_method')"
+          style="width: 100%"
+        >
           <el-option :label="$t('download_individual_files')" :value="2" />
           <el-option :label="$t('zip_download')" :value="1" />
         </el-select>
       </el-form-item>
       <div style="display: flex">
-        <el-form-item prop="downloadTypeByFolders" v-if="formData.downloadType === 1">
+        <el-form-item
+          prop="downloadTypeByFolders"
+          v-if="formData.downloadType === 1"
+        >
           <template #label>
             <p style="display: flex; align-items: center">
               <span style="margin-right: 2px">{{
                 $t("folder_classification")
               }}</span>
-              <el-popover placement="top-start" trigger="hover" :content="$t('folder_classification_hint')">
+              <el-popover
+                placement="top-start"
+                trigger="hover"
+                :content="$t('folder_classification_hint')"
+              >
                 <template #reference>
                   <el-icon>
                     <InfoFilled />
@@ -60,28 +115,50 @@ multiple
               </el-popover>
             </p>
           </template>
-          <el-switch v-model="formData.downloadTypeByFolders" :active-text="$t('yes')" :inactive-text="$t('no')" />
+          <el-switch
+            v-model="formData.downloadTypeByFolders"
+            :active-text="$t('yes')"
+            :inactive-text="$t('no')"
+          />
         </el-form-item>
       </div>
 
-      <el-form-item :label="$t('first_directory')"
-prop="firstFolderKey"
-        v-if="formData.downloadType === 1 && formData.downloadTypeByFolders">
-        <el-select v-model="formData.firstFolderKey"
-:placeholder="$t('select_first_directory')"
-style="width: 100%"
-          clearable>
-          <el-option v-for="meta in singleSelectList" :key="meta.id" :label="meta.name" :value="meta.id" />
+      <el-form-item
+        :label="$t('first_directory')"
+        prop="firstFolderKey"
+        v-if="formData.downloadType === 1 && formData.downloadTypeByFolders"
+      >
+        <el-select
+          v-model="formData.firstFolderKey"
+          :placeholder="$t('select_first_directory')"
+          style="width: 100%"
+          clearable
+        >
+          <el-option
+            v-for="meta in singleSelectList"
+            :key="meta.id"
+            :label="meta.name"
+            :value="meta.id"
+          />
         </el-select>
       </el-form-item>
-      <el-form-item :label="$t('second_directory')"
-prop="secondFolderKey"
-        v-if="formData.downloadType === 1 && formData.downloadTypeByFolders">
-        <el-select clearable
-v-model="formData.secondFolderKey"
-:placeholder="$t('select_second_directory')"
-          style="width: 100%">
-          <el-option v-for="meta in singleSelectList" :key="meta.id" :label="meta.name" :value="meta.id" />
+      <el-form-item
+        :label="$t('second_directory')"
+        prop="secondFolderKey"
+        v-if="formData.downloadType === 1 && formData.downloadTypeByFolders"
+      >
+        <el-select
+          clearable
+          v-model="formData.secondFolderKey"
+          :placeholder="$t('select_second_directory')"
+          style="width: 100%"
+        >
+          <el-option
+            v-for="meta in singleSelectList"
+            :key="meta.id"
+            :label="meta.name"
+            :value="meta.id"
+          />
         </el-select>
       </el-form-item>
 
@@ -94,13 +171,20 @@ v-model="formData.secondFolderKey"
         </el-button>
       </div>
     </el-form>
-    <el-dialog v-model="downModelVis"
-:title="$t('file_download')"
-width="80%"
-:close-on-click-modal="false"
+    <el-dialog
+      v-model="downModelVis"
+      :title="$t('file_download')"
+      width="80%"
+      :close-on-click-modal="false"
       :close-on-press-escape="false"
-:append-to-body="true">
-      <DownModel v-if="downModelVis" :formData="formData" @finsh="datas.finshDownload=true" :zipName="activeTableInfo.tableName"/>
+      :append-to-body="true"
+    >
+      <DownModel
+        v-if="downModelVis"
+        :formData="formData"
+        @finsh="datas.finshDownload = true"
+        :zipName="activeTableInfo.tableName"
+      />
       <template #footer v-if="datas.finshDownload">
         <span class="dialog-footer">
           <el-button @click="downModelVis = false">{{
@@ -116,7 +200,7 @@ import { ref, onMounted, reactive, toRefs, watch, computed } from 'vue'
 import { bitable, FieldType } from '@lark-base-open/js-sdk'
 import { Download, InfoFilled } from '@element-plus/icons-vue'
 import DownModel from './DownModel.vue'
-import { SUPPORT_TYPES, getInfoByTableMetaList } from '@/hooks/useBitable.js'
+import { SUPPORT_TYPES, getInfoByTableMetaList, sortByOrder } from '@/hooks/useBitable.js'
 
 const elform = ref(null)
 const loading = ref(true)
@@ -217,6 +301,23 @@ const attachmentList = computed(() => {
     )
     : []
 })
+watch(
+  () => formData.viewId,
+  async(viewId) => {
+    console.log(111)
+    console.log(activeTableInfo)
+    if (viewId && activeTableInfo.value) {
+      const table = await bitable.base.getTableById(formData.tableId)
+
+      const view = await table.getViewById(formData.viewId)
+      const list = await view.getFieldMetaList()
+
+      const item = datas.allInfo.find((item) => item.tableId === formData.tableId)
+      console.log(sortByOrder(item.fieldMetaList, list))
+      // item.fieldMetaList = sortByOrder(item.fieldMetaList, list)
+    }
+  }
+)
 const singleSelectList = computed(() => {
   return activeTableInfo.value
     ? activeTableInfo.value['fieldMetaList'].filter((item) =>

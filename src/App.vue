@@ -1,6 +1,6 @@
 <script setup>
 import Form from './components/Form.vue'
-import { Warning, Refresh } from '@element-plus/icons-vue'
+import { Warning, Refresh, QuestionFilled } from '@element-plus/icons-vue'
 import { ref } from 'vue'
 import { useTheme } from '@/hooks/useTheme'
 useTheme()
@@ -15,6 +15,10 @@ const refreshForm = () => {
 
 <template>
   <main>
+    <a class="help" target="_blank" href="https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=68dqfd50-145d-4cb0-ac18-53af1f73cad8">帮助
+      <el-icon class="el-icon--right"><QuestionFilled size="small"/></el-icon>
+    </a>
+
     <div class="hd">
       <el-popover placement="top-start" :width="'80%'" trigger="click">
         <template #reference>
@@ -48,12 +52,23 @@ const refreshForm = () => {
 main {
   padding: 1rem;
 }
+.help{
+    color: var(--el-color-primary);
+    font-size: 16px;
+    cursor: pointer;
+    margin-bottom:12px;
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    text-decoration: none; /* 确保没有下划线 */
 
+  }
 .hd {
   margin-bottom: 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+
   .el-button {
     flex: 1;
   }

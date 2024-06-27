@@ -97,19 +97,21 @@ const percent = computed(() => {
   )
 })
 const sortFileInfo = () => {
-  // 根据条件对 fileInfo 数组进行排序
-  // 确保 'loading' 类型的条目排在数组的最前面
+  // 定义优先级映射
+  const priority = {
+    'loading': 1,
+    'error': 2,
+    'default': 3 // 其他类型的优先级
+  }
+  // 重构数组，当数组长度大于20时，删除 type 为 'default' 的元素
+  if (fileInfo.value.length > 20) {
+    fileInfo.value = fileInfo.value.filter(item => {
+      return item.type !== 'success'
+    })
+  }
+
   fileInfo.value.sort((a, b) => {
-    // 如果 a 是 'loading' 而 b 不是，则 a 排在前面
-    if (a.type === 'loading' && b.type !== 'loading') {
-      return -1
-    }
-    // 如果 b 是 'loading' 而 a 不是，则 b 排在前面
-    if (b.type === 'loading' && a.type !== 'loading') {
-      return 1
-    }
-    // 对于其他情况，可以按其他标准排序，或者保持原顺序
-    return 0
+    return (priority[a.type] || priority['default']) - (priority[b.type] || priority['default'])
   })
 }
 
@@ -141,7 +143,9 @@ onMounted(async() => {
   })
   fileDownloader.on('progress', (progressInfo) => {
     const { index, percentage, name, size } = progressInfo
-
+    if (completedIds.value.has(index)) {
+      return
+    }
     const itemIndex = fileInfo.value.findIndex((item) => item.index === index)
 
     if (itemIndex === -1) {
@@ -156,11 +160,9 @@ onMounted(async() => {
       fileInfo.value[itemIndex].percentage = percentage
 
       if (percentage >= 100) {
-        if (!completedIds.value.has(index)) {
-          fileInfo.value[itemIndex].type = 'success'
+        fileInfo.value[itemIndex].type = 'success'
 
-          completedIds.value.add(index) // 标记为已处理
-        }
+        completedIds.value.add(index) // 标记为已处理
         debouncedSortFileInfo()
       } else {
         fileInfo.value[itemIndex].type = 'loading'
