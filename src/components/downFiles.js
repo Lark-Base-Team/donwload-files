@@ -31,6 +31,7 @@ class FileDownloader {
     this.currentTotalSize = 0
     this.nameSpace = new Set()
     this.zip = null
+    this.cellList = []
   }
 
   async getCellsList() {
@@ -76,14 +77,15 @@ class FileDownloader {
   }
   async setFileNames() {
     if (this.fileNameType !== 1) return
-
-    const targetFieldId = this.fileNameByField
-    const getFileName = async(cell, targetFieldId) => {
-      const name = await this.oTable.getCellString(
-        targetFieldId,
-        cell.recordId
+    const targetFieldIds = this.fileNameByField
+    const getFileName = async(cell, fieldIds) => {
+      const names = await Promise.all(
+        fieldIds.map(fieldId =>
+          this.oTable.getCellString(fieldId, cell.recordId)
+        )
       )
-      return name
+      // 过滤掉空字符串，并用 '-' 连接剩余的名称部分
+      return names.filter(name => name).join(this.nameMark)
     }
 
     const updateCellNames = (cell, newName) => {
@@ -95,7 +97,7 @@ class FileDownloader {
 
     // 使用 map 创建一个包含所有异步操作的数组
     const promises = this.cellList.map((cell) =>
-      getFileName(cell, targetFieldId)
+      getFileName(cell, targetFieldIds)
     )
 
     // 等待所有异步操作完成
@@ -159,15 +161,19 @@ class FileDownloader {
       superTask.setTasks(tasks)
 
       await superTask.finished().catch((errors) => {})
-
-      const content = await this.zip.generateAsync(
+      const [err, content] = await to(this.zip.generateAsync(
         { type: 'blob' },
         (metadata) => {
           const percent = metadata.percent.toFixed(2)
           this.emit('zip_progress', percent)
         }
-      )
-      saveAs(content, `${this.zipName}.zip`)
+      ))
+      if (err) {
+        this.emit('max_size_warning')
+      } else {
+        saveAs(content, `${this.zipName}.zip`)
+        this.zip = null // 释放 zip 实例
+      }
     }
   }
   async getAttachmentUrl(fileInfo) {

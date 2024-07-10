@@ -26,23 +26,21 @@
       </el-form-item>
       <el-form-item :label="$t('view_column')" prop="viewId">
         <template #label>
-            <p style="display: flex; align-items: center">
-              <span style="margin-right: 2px">{{
-                $t("view_column")
-              }}</span>
-              <el-popover
-                placement="top-start"
-                trigger="hover"
-                :content="'可筛选，下载视图筛选之后的数据'"
-              >
-                <template #reference>
-                  <el-icon>
-                    <InfoFilled />
-                  </el-icon>
-                </template>
-              </el-popover>
-            </p>
-          </template>
+          <p style="display: flex; align-items: center">
+            <span style="margin-right: 2px">{{ $t("view_column") }}</span>
+            <el-popover
+              placement="top-start"
+              trigger="hover"
+              :content="'可筛选，下载视图筛选之后的数据'"
+            >
+              <template #reference>
+                <el-icon>
+                  <InfoFilled />
+                </el-icon>
+              </template>
+            </el-popover>
+          </p>
+        </template>
         <el-select
           v-model="formData.viewId"
           :placeholder="$t('select_view')"
@@ -87,10 +85,27 @@
         prop="fileNameByField"
         v-if="formData.fileNameType === 1"
       >
+        <template #label>
+          <p style="display: flex; align-items: center">
+            <span style="margin-right: 2px">{{ $t("file_name_field") }}</span>
+            <el-popover
+              placement="top-start"
+              trigger="hover"
+              :content="'支持多选组合命名'"
+            >
+              <template #reference>
+                <el-icon>
+                  <InfoFilled />
+                </el-icon>
+              </template>
+            </el-popover>
+          </p>
+        </template>
         <el-select
           v-model="formData.fileNameByField"
           :placeholder="$t('select_file_name_field')"
           style="width: 100%"
+          multiple
         >
           <el-option
             :label="item.name"
@@ -99,6 +114,65 @@
             :key="item.id"
           />
         </el-select>
+      </el-form-item>
+      <el-form-item
+        :label="'命名排序'"
+        prop="fileNameByField"
+        v-if="
+          formData.fileNameType === 1 && formData.fileNameByField.length > 1
+        "
+      >
+        <template #label>
+          <p style="display: flex; align-items: center">
+            <span style="margin-right: 2px">{{ "命名排序" }}</span>
+            <el-popover
+              placement="top-start"
+              trigger="hover"
+              :content="'拖动排序，xx-xx-xx方式命名'"
+            >
+              <template #reference>
+                <el-icon>
+                  <InfoFilled />
+                </el-icon>
+              </template>
+            </el-popover>
+          </p>
+        </template>
+        <draggable :list="formData.fileNameByField" animation="300">
+          <template #item="{ element }">
+            <div class="drag-item">
+              <el-icon>
+                <Tickets />
+              </el-icon>
+              {{ getSingleSelectListName(element) }}
+            </div>
+          </template>
+        </draggable>
+      </el-form-item>
+      <el-form-item
+        :label="'间隔文字'"
+        prop="nameMark"
+        v-if="
+          formData.fileNameType === 1 && formData.fileNameByField.length > 1
+        "
+      >
+        <template #label>
+          <p style="display: flex; align-items: center">
+            <span style="margin-right: 2px">{{ "间隔文字" }}</span>
+            <el-popover
+              placement="top-start"
+              trigger="hover"
+              :content="'组合命名间隔符，因特殊原因，不支持(/ \ . 等特殊字符)'"
+            >
+              <template #reference>
+                <el-icon>
+                  <InfoFilled />
+                </el-icon>
+              </template>
+            </el-popover>
+          </p>
+        </template>
+        <el-input v-model="formData.nameMark" />
       </el-form-item>
       <el-form-item :label="$t('download_method')" prop="downloadType">
         <el-select
@@ -216,8 +290,10 @@
 <script setup>
 import { ref, onMounted, reactive, toRefs, watch, computed } from 'vue'
 import { bitable, FieldType } from '@lark-base-open/js-sdk'
-import { Download, InfoFilled } from '@element-plus/icons-vue'
+import { Download, InfoFilled, Tickets } from '@element-plus/icons-vue'
 import DownModel from './DownModel.vue'
+import draggable from 'vuedraggable'
+
 import { SUPPORT_TYPES, getInfoByTableMetaList, sortByOrder } from '@/hooks/useBitable.js'
 
 const elform = ref(null)
@@ -227,7 +303,8 @@ const formData = reactive({
   tableId: '',
   attachmentFileds: [],
   fileNameType: 0,
-  fileNameByField: '',
+  fileNameByField: [],
+  nameMark: '-',
   viewId: '',
   downloadType: 1,
   downloadTypeByFolders: false,
@@ -270,6 +347,19 @@ const rules = reactive({
       trigger: 'change'
     }
   ],
+  nameMark: [
+    {
+      required: true,
+      message: '请选择输入间隔文字',
+      trigger: 'change'
+    },
+    {
+      pattern: /^[^\/\.<>!@#$%^&*()=\[\]{}|\\:;"'?,~`]*$/,
+      message: '包含一些特殊字符，暂不支持',
+      trigger: 'change'
+    }
+  ],
+
   downloadType: [
     {
       required: true,
@@ -322,20 +412,23 @@ const attachmentList = computed(() => {
 watch(
   () => formData.viewId,
   async(viewId) => {
-    console.log(111)
-    console.log(activeTableInfo)
     if (viewId && activeTableInfo.value) {
       const table = await bitable.base.getTableById(formData.tableId)
 
       const view = await table.getViewById(formData.viewId)
       const list = await view.getFieldMetaList()
 
-      const item = datas.allInfo.find((item) => item.tableId === formData.tableId)
-      console.log(sortByOrder(item.fieldMetaList, list))
-      // item.fieldMetaList = sortByOrder(item.fieldMetaList, list)
+      const item = datas.allInfo.find(
+        (item) => item.tableId === formData.tableId
+      )
+      item.fieldMetaList = sortByOrder(item.fieldMetaList, list)
     }
   }
 )
+const getSingleSelectListName = (id) => {
+  const item = singleSelectList.value.find((e) => e.id === id)
+  return item ? item.name : ''
+}
 const singleSelectList = computed(() => {
   return activeTableInfo.value
     ? activeTableInfo.value['fieldMetaList'].filter((item) =>
@@ -350,7 +443,7 @@ watch(
     if (!isExit) {
       formData.viewId = viewList.value.length ? viewList.value[0]['id'] : ''
     }
-    formData.fileNameByField = ''
+    formData.fileNameByField = []
     formData.attachmentFileds = attachmentList.value.map((e) => e.id)
     formData.firstFolderKey = ''
     formData.secondFolderKey = ''
@@ -384,7 +477,6 @@ const submit = async() => {
 onMounted(async() => {
   const tableMetaList = await bitable.base.getTableMetaList()
   datas.allInfo = await getInfoByTableMetaList(tableMetaList)
-  console.log('allInfo', datas.allInfo)
 
   // 刚渲染本插件的时候，用户所选的tableId等信息
   const { tableId, viewId } = await bitable.base.getSelection()
@@ -419,6 +511,20 @@ onMounted(async() => {
     height: 60vh;
     overflow: auto;
     padding: 16px;
+  }
+}
+
+.drag-item {
+  cursor: move;
+  display: inline-flex;
+  margin-right: 10px;
+  align-items: center;
+  color: var(--N900);
+  &:hover {
+    opacity: 0.8;
+  }
+  .el-icon {
+    margin-right: 3px;
   }
 }
 </style>

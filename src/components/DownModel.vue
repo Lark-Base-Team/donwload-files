@@ -12,6 +12,7 @@
       <p>已下载文件数量{{ getCompletedIdsLength }}个</p>
       <p>{{ maxInfo }}</p>
       <p>{{ zipProgressText }}</p>
+      <p style="color:red" v-if="!!zipError">{{ '文件打包失败，请使用chrome浏览器进行打包' }}</p>
 
       <el-table
         :data="fileInfo"
@@ -72,7 +73,7 @@ const emit = defineEmits(['finsh'])
 const MAX_SIZE = 1073741824 * 1
 
 const completedIds = ref(new Set())
-
+const zipError = ref(false)
 const totalSize = ref(0)
 const totalLength = ref(0)
 const fileInfo = ref([])
@@ -141,8 +142,9 @@ onMounted(async() => {
     }
   })
   fileDownloader.on('max_size_warning', (info) => {
-    maxInfo.value = info
+    zipError.value = true
   })
+
   fileDownloader.on('progress', (progressInfo) => {
     const { index, percentage, name, size } = progressInfo
     if (completedIds.value.has(index)) {

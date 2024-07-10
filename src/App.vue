@@ -15,9 +15,16 @@ const refreshForm = () => {
 
 <template>
   <main>
-    <a class="help" target="_blank" href="https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=68dqfd50-145d-4cb0-ac18-53af1f73cad8">帮助
-      <el-icon class="el-icon--right"><QuestionFilled size="small"/></el-icon>
-    </a>
+    <div class="help">
+      <a
+        target="_blank"
+        href="https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=68dqfd50-145d-4cb0-ac18-53af1f73cad8"
+        >帮助
+        <el-icon class="el-icon--right"
+          ><QuestionFilled size="small"
+        /></el-icon>
+      </a>
+    </div>
 
     <div class="hd">
       <el-popover placement="top-start" :width="'80%'" trigger="click">
@@ -52,17 +59,20 @@ const refreshForm = () => {
 main {
   padding: 1rem;
 }
-.help{
+.help {
+  display: flex;
+  justify-content: flex-end;
+  a {
     color: var(--el-color-primary);
     font-size: 16px;
     cursor: pointer;
-    margin-bottom:12px;
+    margin-bottom: 12px;
     display: flex;
     align-items: center;
     justify-content: end;
     text-decoration: none; /* 确保没有下划线 */
-
   }
+}
 .hd {
   margin-bottom: 16px;
   display: flex;
