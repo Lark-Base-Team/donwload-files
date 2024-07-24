@@ -8,13 +8,14 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  // base: './', // 请勿删除此语句，否则将导致部署失败
+  base: './', // 请勿删除此语句，否则将导致部署失败
 
-  base: '/down/', // 请勿删除此语句，否则将导致部署失败
+  // base: '/down/', // 请勿删除此语句，否则将导致部署失败
   server: {
     host: true
   },
   build: {
+    // sourcemap: true, // 或者使用 'inline' 等其他选项
 
     rollupOptions: {
 

@@ -475,8 +475,12 @@ const submit = async() => {
 }
 
 onMounted(async() => {
-  const tableMetaList = await bitable.base.getTableMetaList()
+  let tableMetaList = await bitable.base.getTableMetaList()
+  // 无权限用户。通过以上接口会返回数据，但是name为空
+  tableMetaList = tableMetaList.filter((e) => !!e.name)
+  console.log('tableMetaList', tableMetaList)
   datas.allInfo = await getInfoByTableMetaList(tableMetaList)
+  console.log('allInfo', datas.allInfo)
 
   // 刚渲染本插件的时候，用户所选的tableId等信息
   const { tableId, viewId } = await bitable.base.getSelection()
