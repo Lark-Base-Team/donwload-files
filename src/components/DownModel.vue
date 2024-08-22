@@ -6,7 +6,8 @@
     </div>
     <h4>{{ $t("download_details") }}</h4>
     <div class="prompt">
-      <p v-if="totalSize>MAX_SIZE">当前下载附件过大，推荐进行视图筛选在进行下载</p>
+      <p  v-if="totalSize>MAX_SIZE" style="color: var(--el-color-warning);line-height: 1.5;">当前下载附件过大，推荐进行视图筛选，如您下载奔溃或者无反应，请使用chrome浏览器下载</p>
+      <!-- <p>已找到{{ fileCellLength }}个单元格</p> -->
       <p>共计有 {{ totalLength }} 个文件待下载。</p>
       <p>当前文件总大小{{ getFileSize(totalSize) }}</p>
       <p>已下载文件数量{{ getCompletedIdsLength }}个</p>
@@ -70,7 +71,7 @@ import { i18n } from '@/locales/i18n.js'
 import { getFileSize, debouncedSort } from '@/utils/index.js'
 const $t = i18n.global.t
 const emit = defineEmits(['finsh'])
-const MAX_SIZE = 1073741824 * 1
+const MAX_SIZE = 1073741824 * 1 // 1G
 
 const completedIds = ref(new Set())
 const zipError = ref(false)
@@ -78,6 +79,7 @@ const totalSize = ref(0)
 const totalLength = ref(0)
 const fileInfo = ref([])
 const maxInfo = ref('')
+const fileCellLength = ref(0)
 const zipProgressText = ref('')
 
 const props = defineProps({
@@ -95,9 +97,8 @@ const getCompletedIdsLength = computed(() => {
 })
 
 const percent = computed(() => {
-  return (
-    ((getCompletedIdsLength.value / totalLength.value) * 100).toFixed(2) - 0
-  )
+  const val = ((getCompletedIdsLength.value / totalLength.value) * 100).toFixed(2) - 0
+  return val || 0
 })
 const sortFileInfo = () => {
   // 定义优先级映射
@@ -126,10 +127,14 @@ onMounted(async() => {
     zipName: zipName.value
   })
   fileDownloader.on('preding', (cells) => {
-    totalLength.value += cells.length
-    cells.forEach((cell) => {
-      totalSize.value += cell.size
-    })
+    fileCellLength.value += 1
+
+    if (cells) {
+      totalLength.value += cells.length
+      cells.forEach((cell) => {
+        totalSize.value += cell.size
+      })
+    }
   })
   fileDownloader.on('error', (errorInfo) => {
     const { index, message } = errorInfo

@@ -33,10 +33,30 @@ class FileDownloader {
     this.zip = null
     this.cellList = []
   }
+  async loopGetRecordIdList(oView, list, pageToken) {
+    const params = {
+      pageSize: 200
+    }
+    if (pageToken) {
+      params.pageToken = pageToken
+    }
+    const [err, response] = await to(oView.getVisibleRecordIdListByPage(params))
+    if (err) {
+      console.log(err)
+    } else {
+      const { hasMore, recordIds, pageToken: nextPageToken } = response
 
+      list.push(...recordIds)
+      if (hasMore && nextPageToken) {
+        await this.loopGetRecordIdList(oView, list, nextPageToken)
+      }
+    }
+
+    return list
+  }
   async getCellsList() {
     const oView = await this.oTable.getViewById(this.viewId)
-    const oRecordList = await oView.getVisibleRecordIdList()
+    const oRecordList = await this.loopGetRecordIdList(oView, [])
     let cellList = []
 
     for (const fieldId of this.attachmentFileds) {
@@ -54,6 +74,8 @@ class FileDownloader {
           }))
           cellList.push(...cell)
           this.emit('preding', cell)
+        } else {
+          this.emit('preding')
         }
       }
     }
@@ -266,7 +288,7 @@ class FileDownloader {
     this.oTable = await bitable.base.getTableById(this.tableId)
     // 获取所有附件信息
     this.cellList = await this.getCellsList()
-    // 为所有附件重新取名
+    //  为所有附件重新取名
     await this.setFileNames()
     await this.setFolderPath()
 
