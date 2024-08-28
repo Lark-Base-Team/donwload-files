@@ -289,7 +289,8 @@
 </template>
 <script setup>
 import { ref, onMounted, reactive, toRefs, watch, computed } from 'vue'
-import { bitable, FieldType } from '@lark-base-open/js-sdk'
+import { bitable, FieldType, base, PermissionEntity, OperationType } from '@lark-base-open/js-sdk'
+
 import { Download, InfoFilled, Tickets } from '@element-plus/icons-vue'
 import DownModel from './DownModel.vue'
 import draggable from 'vuedraggable'
@@ -465,6 +466,19 @@ watch(
   }
 )
 const submit = async() => {
+  // 获取下载权限（下载和打印归属一个权限）
+  const bool = await base.getPermission({
+    entity: PermissionEntity.Base,
+    type: OperationType.Printable
+  })
+
+  if (!bool) {
+    await bitable.ui.showToast({
+      toastType: 'warning',
+      message: '您无权限下载附件，请联系管理员'
+    })
+    return
+  }
   if (!elform.value) return
   await elform.value.validate(async(valid) => {
     if (valid) {
