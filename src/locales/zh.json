@@ -8,7 +8,6 @@
   "notice_6": "多维表格新增数据表、视图或字段时，请重新运行本工具",
   "notice_7": "Zip打包功能使用了JSZip插件，大数据响应体验较慢，当前仅作代码交流学习用。大文件时，请使用逐个下载模式。",
   "refresh_form": "刷新表单",
-
   "data_table_column": "数据表列",
   "view_column": "视图列",
   "attachment_fields": "附件字段",
@@ -38,8 +37,6 @@
   "no": "否",
   "select_first_directory": "请选择一级目录",
   "select_second_directory": "请选择二级目录",
-
-
   "uncategorized": "无类别",
   "undefined": "未定义",
   "file_download_failed": "文件下载失败",
@@ -53,13 +50,25 @@
   "no_files_to_download_message": "当前无文件需要下载，请确认。",
   "fetching_file_info_message": "正在获取文件信息...",
   "total_file_size_message": "当前文件总大小",
-  "preparing_to_download_files_message": "准备下载文件"
-
-
-
-
-
-
-
+  "preparing_to_download_files_message": "准备下载文件",
+  "text1": "可筛选，下载视图筛选之后的数据",
+  "text2": "支持多选组合命名",
+  "text3": "命名排序",
+  "text4": "拖动排序，xx-xx-xx方式命名",
+  "text5": "间隔文字",
+  "text6": "组合命名间隔符，因特殊原因，不支持(/\\/\\. 等特殊字符)",
+  "text7": "当前下载附件过大，推荐进行视图筛选，如您下载奔溃或者无反应，请使用chrome浏览器下载",
+  "text8": "共计有 { totalLength } 个文件待下载。",
+  "text9": "当前文件总大小{totalSize}",
+  "text10": "已下载文件数量{ getCompletedIdsLength }个",
+  "text11": "文件打包失败，请使用chrome浏览器进行打包",
+  "text12": "文件名",
+  "text13": "下载进度",
+  "text14": "文件大小",
+  "text15": "状态",
+  "text16": "下载中",
+  "text17": "下载成功",
+  "text18": "下载失败",
+  "help": "帮助"
 
 }

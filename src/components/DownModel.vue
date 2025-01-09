@@ -6,14 +6,14 @@
     </div>
     <h4>{{ $t("download_details") }}</h4>
     <div class="prompt">
-      <p  v-if="totalSize>MAX_SIZE" style="color: var(--el-color-warning);line-height: 1.5;">当前下载附件过大，推荐进行视图筛选，如您下载奔溃或者无反应，请使用chrome浏览器下载</p>
+      <p  v-if="totalSize>MAX_SIZE" style="color: var(--el-color-warning);line-height: 1.5;">{{ $t('text7') }}</p>
       <!-- <p>已找到{{ fileCellLength }}个单元格</p> -->
-      <p>共计有 {{ totalLength }} 个文件待下载。</p>
-      <p>当前文件总大小{{ getFileSize(totalSize) }}</p>
-      <p>已下载文件数量{{ getCompletedIdsLength }}个</p>
+      <p> {{ $t('text8',{totalLength}) }}</p>
+      <p> {{ $t('text9',{totalSize:getFileSize(totalSize)})}}</p>
+      <p> {{ $t('text10',{getCompletedIdsLength})}}</p>
       <p>{{ maxInfo }}</p>
       <p>{{ zipProgressText }}</p>
-      <p style="color:red" v-if="!!zipError">{{ '文件打包失败，请使用chrome浏览器进行打包' }}</p>
+      <p style="color:red" v-if="!!zipError">{{ $t('text11') }}</p>
 
       <el-table
         :data="fileInfo"
@@ -22,40 +22,40 @@
         size="small"
       >
         <el-table-column type="index" width="50" />
-        <el-table-column prop="name" label="文件名" width="" />
-        <el-table-column prop="percentage" label="下载进度">
+        <el-table-column prop="name" :label="$t('text12')" width="" />
+        <el-table-column prop="percentage" :label="$t('text13')">
           <template #default="scope">
             {{ scope.row.percentage
             }}{{ scope.row.type === "error" ? "" : "%" }}
           </template>
         </el-table-column>
-        <el-table-column prop="size" label="文件大小">
+        <el-table-column prop="size" :label="$t('text14')">
           <template #default="scope">
             {{ getFileSize(scope.row.size) }}
           </template>
         </el-table-column>
-        <el-table-column prop="status" label="状态">
+        <el-table-column prop="status" :label="$t('text15')">
           <template #default="scope">
             <el-button
               type="primary"
               v-if="scope.row.type === 'loading'"
               size="small"
               link
-              >下载中</el-button
+              >{{ $t('text16') }}</el-button
             >
             <el-button
               type="success"
               link
               v-if="scope.row.type === 'success'"
               size="small"
-              >下载成功</el-button
+              >{{ $t('text17') }}</el-button
             >
             <el-button
               type="danger"
               link
               v-if="scope.row.type === 'error'"
               size="small"
-              >下载失败</el-button
+              >{{ $t('text18') }}</el-button
             >
           </template>
         </el-table-column>

@@ -18,8 +18,8 @@ const refreshForm = () => {
     <div class="help">
       <a
         target="_blank"
-        href="https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=68dqfd50-145d-4cb0-ac18-53af1f73cad8"
-        >帮助
+        href="https://p6bgwki4n6.feishu.cn/docx/Pn7Kdw2rPocwPZxVfF5cMsAcnle?from=from_copylink"
+        >{{ $t('help') }}
         <el-icon class="el-icon--right"
           ><QuestionFilled size="small"
         /></el-icon>

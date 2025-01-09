@@ -8,7 +8,6 @@
   "notice_6": "When adding data tables, views, or fields to multidimensional tables, please rerun this tool",
   "notice_7": "The Zip packaging function uses the JSZip plugin. The experience with large data responses is slow. Currently, it is only used for code communication and learning. For large files, please use the individual download mode.",
   "refresh_form": "Refresh Form",
-
   "data_table_column": "Data Table Column",
   "view_column": "View Column",
   "attachment_fields": "Attachment Fields",
@@ -47,12 +46,26 @@
   "file_packing_progress_message": "File packing in progress: percentage% completed.",
   "file_download_failed_message": "Failed to download file_name, error message: error_message",
   "downloading_file_progress": "Downloading file index, current progress percentage%",
-
   "file_size_warning_message": "The current file size is about to exceed max_size GB. To avoid plugin crashes, we will first download it to your local storage before proceeding with subsequent downloads...",
-
   "uncategorized": "unclassified",
-  "undefined": "undefined"
-
-
-
+  "undefined": "undefined",
+  "text1": "Filterable, download data after view filtering",
+  "text2": "Support multiple selection and combination naming",
+  "text3": "Name sorting",
+  "text4": "Drag and drop sorting, named in the xx-xx-xx format",
+  "text5": "Interval text",
+  "text6": "Combination naming delimiter, due to special reasons, does not support special characters such as (//. etc.)",
+  "text7": "The current download attachment is too large. It is recommended to perform view filtering. If you experience a crash or no response during download, please use the Chrome browser for downloading.",
+  "text8": "There are a total of { totalLength } files waiting to be downloaded.",
+  "text9": "The total size of the current files is {totalSize}.",
+  "text10": "The number of files downloaded is { getCompletedIdsLength }.",
+  "text11": "File packaging failed, please use the Chrome browser for packaging.",
+  "text12": "File Name",
+  "text13": "Download Progress",
+  "text14": "File Size",
+  "text15": "Status",
+  "text16": "Downloading",
+  "text17": "Successful",
+  "text18": "Failed",
+  "help": "Help"
 }

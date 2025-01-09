@@ -31,7 +31,7 @@
             <el-popover
               placement="top-start"
               trigger="hover"
-              :content="'可筛选，下载视图筛选之后的数据'"
+              :content="$t('text1')"
             >
               <template #reference>
                 <el-icon>
@@ -91,7 +91,7 @@
             <el-popover
               placement="top-start"
               trigger="hover"
-              :content="'支持多选组合命名'"
+              :content="$t('text2')"
             >
               <template #reference>
                 <el-icon>
@@ -116,7 +116,7 @@
         </el-select>
       </el-form-item>
       <el-form-item
-        :label="'命名排序'"
+        :label="$t('text3')"
         prop="fileNameByField"
         v-if="
           formData.fileNameType === 1 && formData.fileNameByField.length > 1
@@ -124,11 +124,11 @@
       >
         <template #label>
           <p style="display: flex; align-items: center">
-            <span style="margin-right: 2px">{{ "命名排序" }}</span>
+            <span style="margin-right: 2px">{{ $t('text3') }}</span>
             <el-popover
               placement="top-start"
               trigger="hover"
-              :content="'拖动排序，xx-xx-xx方式命名'"
+              :content="$t('text4')"
             >
               <template #reference>
                 <el-icon>
@@ -150,7 +150,7 @@
         </draggable>
       </el-form-item>
       <el-form-item
-        :label="'间隔文字'"
+        :label="$t('text5')"
         prop="nameMark"
         v-if="
           formData.fileNameType === 1 && formData.fileNameByField.length > 1
@@ -158,11 +158,11 @@
       >
         <template #label>
           <p style="display: flex; align-items: center">
-            <span style="margin-right: 2px">{{ "间隔文字" }}</span>
+            <span style="margin-right: 2px">{{ $t('text5') }}</span>
             <el-popover
               placement="top-start"
               trigger="hover"
-              :content="'组合命名间隔符，因特殊原因，不支持(/ \ . 等特殊字符)'"
+              :content="$t('text6')"
             >
               <template #reference>
                 <el-icon>
