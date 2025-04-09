@@ -33,35 +33,37 @@ class FileDownloader {
     this.zip = null
     this.cellList = []
   }
-  async loopGetRecordIdList(oView, list, pageToken) {
+  async loopGetRecordIdList(list = [], pageToken) {
     const params = {
-      pageSize: 200
+      pageSize: 200,
+      viewId: this.viewId
     }
     if (pageToken) {
       params.pageToken = pageToken
     }
-    const [err, response] = await to(oView.getVisibleRecordIdListByPage(params))
+    const [err, response] = await to(this.oTable.getRecordsByPage(params))
+    console.log('response', response)
     if (err) {
       console.log(err)
     } else {
-      const { hasMore, recordIds, pageToken: nextPageToken } = response
+      const { hasMore, records = [], pageToken: nextPageToken } = response
 
-      list.push(...recordIds)
+      list.push(...records)
       if (hasMore && nextPageToken) {
-        await this.loopGetRecordIdList(oView, list, nextPageToken)
+        await this.loopGetRecordIdList(list, nextPageToken)
       }
     }
 
     return list
   }
   async getCellsList() {
-    const oView = await this.oTable.getViewById(this.viewId)
-    const oRecordList = await this.loopGetRecordIdList(oView, [])
+    const oRecordList = await this.loopGetRecordIdList()
     let cellList = []
 
     for (const fieldId of this.attachmentFileds) {
-      for (const recordId of oRecordList) {
-        let cell = await this.oTable.getCellValue(fieldId, recordId)
+      for (const records of oRecordList) {
+        let cell = records.fields[fieldId]
+        const recordId = records.recordId
 
         if (cell) {
           cell = cell.map((e) => ({
