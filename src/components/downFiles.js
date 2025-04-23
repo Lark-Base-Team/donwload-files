@@ -16,7 +16,7 @@ import {
 
 const $t = i18n.global.t
 
-const MAX_ZIP_SIZE_NUM = 0.2
+const MAX_ZIP_SIZE_NUM = 1
 
 const MAX_ZIP_SIZE = MAX_ZIP_SIZE_NUM * 1024 * 1024 * 1024
 
