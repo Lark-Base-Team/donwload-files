@@ -16,7 +16,7 @@ import {
 
 const $t = i18n.global.t
 
-const MAX_ZIP_SIZE_NUM = 1
+const MAX_ZIP_SIZE_NUM = 0.2
 
 const MAX_ZIP_SIZE = MAX_ZIP_SIZE_NUM * 1024 * 1024 * 1024
 
@@ -174,7 +174,14 @@ class FileDownloader {
     return name
   }
   async zipDownLoad() {
-    const zipsList = chunkArrayByMaxSize(this.cellList, MAX_ZIP_SIZE)
+    const { chunks: zipsList, maxChunks: maxChunksList, total } = chunkArrayByMaxSize(this.cellList, MAX_ZIP_SIZE)
+    if (zipsList.length > 1) {
+      this.emit('warn', $t('text19', { length: zipsList.length }))
+    }
+    if (maxChunksList.length) {
+      this.emit('warn', $t('text20', { length: maxChunksList.length }))
+    }
+
     for (const zipList of zipsList) {
       this.zip = new JSZip()
       this.currentTotalSize = 0 // 重置当前总大小
@@ -198,6 +205,9 @@ class FileDownloader {
         saveAs(content, `${this.zipName}.zip`)
         this.zip = null // 释放 zip 实例
       }
+    }
+    for (const fileInfo of maxChunksList) {
+      await this.sigleDownLoad(fileInfo)
     }
   }
   async getAttachmentUrl(fileInfo) {

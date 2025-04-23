@@ -35,17 +35,21 @@ export const replaceFileName = (originalName, newName, emptyName = '') => {
 
 export const chunkArrayByMaxSize = (items, maxSize) => {
   const chunks = []
-
-  // Sort items from largest to smallest
-  items.sort((a, b) => b.size - a.size)
-
+  const maxChunks = []
+  let total = 0
   while (items.length > 0) {
     const currentChunk = []
     let currentSize = 0
 
     // Try to fit as many items as possible into the current chunk
     for (let i = 0; i < items.length; i++) {
-      if (currentSize + items[i].size <= maxSize) {
+      if (items[i].size >= maxSize) {
+        total++
+        maxChunks.push(items[i])
+        items.splice(i, 1) // Remove the item from the list
+        i-- // Adjust the index after removing an item
+      } else if (currentSize + items[i].size <= maxSize) {
+        total++
         currentChunk.push(items[i])
         currentSize += items[i].size
         items.splice(i, 1) // Remove the item from the list
@@ -56,5 +60,9 @@ export const chunkArrayByMaxSize = (items, maxSize) => {
     chunks.push(currentChunk)
   }
 
-  return chunks
+  return {
+    total,
+    chunks,
+    maxChunks
+  }
 }

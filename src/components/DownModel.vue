@@ -6,8 +6,12 @@
     </div>
     <h4>{{ $t("download_details") }}</h4>
     <div class="prompt">
-      <p  v-if="totalSize>MAX_SIZE" style="color: var(--el-color-warning);line-height: 1.5;">{{ $t('text7') }}</p>
+     <p  v-if="totalSize>MAX_SIZE" style="color: var(--el-color-warning);line-height: 1.5;">{{ $t('text7') }}</p>
+     <template v-if="warnList.length">
+      <p v-for="item in warnList" :key="item" style="color: var(--el-color-warning);line-height: 1.5;">{{ item }}</p>
+     </template>
       <!-- <p>已找到{{ fileCellLength }}个单元格</p> -->
+
       <p> {{ $t('text8',{totalLength}) }}</p>
       <p> {{ $t('text9',{totalSize:getFileSize(totalSize)})}}</p>
       <p> {{ $t('text10',{getCompletedIdsLength})}}</p>
@@ -72,7 +76,7 @@ import { getFileSize, debouncedSort } from '@/utils/index.js'
 const $t = i18n.global.t
 const emit = defineEmits(['finsh'])
 const MAX_SIZE = 1073741824 * 1 // 1G
-
+const warnList = ref([])
 const completedIds = ref(new Set())
 const zipError = ref(false)
 const totalSize = ref(0)
@@ -125,6 +129,9 @@ onMounted(async() => {
   const fileDownloader = new FileDownloader({
     ...formData.value,
     zipName: zipName.value
+  })
+  fileDownloader.on('warn', (msg) => {
+    warnList.value.push(msg)
   })
   fileDownloader.on('preding', (cells) => {
     fileCellLength.value += 1
